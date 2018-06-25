@@ -1,0 +1,45 @@
+#!/bin/bash  
+# serial job using 1 node and 16 processor,  
+# and runs for 04 hours (max). 
+#SBATCH -N 1   # node count 
+#SBATCH --ntasks-per-node=1 # core count
+#SBATCH --mem=64000
+#SBATCH -t 00:20:00  
+# sends mail when process begins, and  
+# when it ends. Make sure you define your email  
+#SBATCH --mail-type=begin  
+#SBATCH --mail-type=end  
+#SBATCH --mail-user=tdn@princeton.edu  
+# Run instance of the serial job with unique parameters  
+cd /home/tdn/kissing
+
+srun /usr/licensed/bin/matlab-R2017b -singleCompThread -nodisplay -nosplash -nojvm -r \
+"function_dsos_putinar_pursuit_ver2(13, 0, 1, 2, 2 , 2, 0.5, 1, 0.0001)"
+
+srun /usr/licensed/bin/matlab-R2017b -singleCompThread -nodisplay -nosplash -nojvm -r \
+"function_dsos_putinar_pursuit_ver2(13, 0, 2, 2, 2 , 2, 0.5, 1, 0.0001)"
+
+srun /usr/licensed/bin/matlab-R2017b -singleCompThread -nodisplay -nosplash -nojvm -r \
+"function_dsos_putinar_pursuit_ver2(13, 0, 3, 2, 2 , 2, 0.5, 1, 0.0001)"
+
+srun /usr/licensed/bin/matlab-R2017b -singleCompThread -nodisplay -nosplash -nojvm -r \
+"function_dsos_putinar_pursuit_ver2(13, 0, 4, 2, 2 , 2, 0.5, 1, 0.0001)"
+
+srun /usr/licensed/bin/matlab-R2017b -singleCompThread -nodisplay -nosplash -nojvm -r \
+"function_dsos_putinar_pursuit_ver2(13, 0, 5, 2, 2 , 2, 0.5, 1, 0.0001)"
+
+srun /usr/licensed/bin/matlab-R2017b -singleCompThread -nodisplay -nosplash -nojvm -r \
+"function_dsos_putinar_pursuit_ver2(13, 0, 6, 2, 2 , 2, 0.5, 1, 0.0001)"
+
+srun /usr/licensed/bin/matlab-R2017b -singleCompThread -nodisplay -nosplash -nojvm -r \
+"function_dsos_putinar_pursuit_ver2(13, 0, 7, 2, 2 , 2, 0.5, 1, 0.0001)"
+
+srun /usr/licensed/bin/matlab-R2017b -singleCompThread -nodisplay -nosplash -nojvm -r \
+"function_dsos_putinar_pursuit_ver2(13, 0, 8, 2, 2 , 2, 0.5, 1, 0.0001)"
+
+srun /usr/licensed/bin/matlab-R2017b -singleCompThread -nodisplay -nosplash -nojvm -r \
+"function_dsos_putinar_pursuit_ver2(13, 0, 9, 2, 2 , 2, 0.5, 1, 0.0001)"
+
+srun /usr/licensed/bin/matlab-R2017b -singleCompThread -nodisplay -nosplash -nojvm -r \
+"function_dsos_putinar_pursuit_ver2(13, 0, 10, 2, 2 , 2, 0.5, 1, 0.0001)"
+
