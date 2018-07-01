@@ -1,8 +1,16 @@
-% n is dimensionlity, x is vector of sdpvar and 
-% f is description of dynamical system 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Original contributor: Tin Nguyen 
+% Description: 
+% Dependencies: 
+% Inputs: 
+% Outputs: 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Initialize Q using linearization of the system, perturbed by noise and
 % scale 
+
+% n is dimensionlity, x is vector of sdpvar and 
+% f is description of dynamical system 
 function [success, guess] = intQ_Qh(n, x, f, deg, noise, scale, options)    
     
     indices = 1:n;
