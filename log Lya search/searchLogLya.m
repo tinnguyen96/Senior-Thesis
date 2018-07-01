@@ -1,4 +1,25 @@
-% x is vector of sdpvar and f is description of dynamical system 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Original contributor: Tin Nguyen. 
+% Description: MATLAB function,
+% - initialize the polynomial component (Q) of the Lyapunov function, 
+% - theoretical basis: Lyapunov theory for linear dynamical system.
+% Dependencies: 
+% - YALMIP (open-sourced LMI parser that comes with good documentation) 
+% - optimizers: MOSEK, SDPT3, etc. 
+% Inputs: 
+% - n: dimensionality, 
+% - x: array of YALMIP variables e.g. [x1, x2], 
+% - f: array of YALMIP expressions e.g. [-x1 + x1*x2, -x2], 
+% - deg: the proposed degree of the polynomial Q, 
+% - scale: multiply each coefficient of the Lyapunov function by this value, 
+% - noise: add i.i.d. Gaussian r.v. with this variance to the scaled Lyapunov function.
+% - options: YALMIP options, such as printing progress of optimizers etc. 
+% Outputs: 
+% - success: binary variable indicating success of the search,
+% - guess: coefficients array of Q, if the search is a success. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 function [success, err, final_P, final_Q] = searchLogLya(n, x, f, dp, dq,...
     P_homogeneous, Q_homogeneous, max_iter, tol, noise, scale, options) 
     %% set up 
