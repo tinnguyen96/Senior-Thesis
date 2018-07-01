@@ -1,16 +1,24 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Original contributor: Tin Nguyen 
-% Description: 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Original contributor: Tin Nguyen. 
+% Description: MATLAB function,
+% - initialize the polynomial component (Q) of the Lyapunov function, 
+% - theoretical basis: Lyapunov theory for linear dynamical system.
 % Dependencies: 
+% - YALMIP (open-sourced LMI parser that comes with good documentation) 
+% - optimizers: MOSEK, SDPT3, etc. 
 % Inputs: 
+% - n: dimensionality, 
+% - x: array of YALMIP variables e.g. [x1, x2], 
+% - f: array of YALMIP expressions e.g. [-x1 + x1*x2, -x2], 
+% - deg: the proposed degree of the polynomial Q, 
+% - scale: multiply each coefficient of the Lyapunov function by this value, 
+% - noise: add i.i.d. Gaussian r.v. with this variance to the scaled Lyapunov function.
+% - options: YALMIP options, such as printing progress of optimizers etc. 
 % Outputs: 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% - success: binary variable indicating success of the search,
+% - guess: coefficients array of Q, if the search is a success. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Initialize Q using linearization of the system, perturbed by noise and
-% scale 
-
-% n is dimensionlity, x is vector of sdpvar and 
-% f is description of dynamical system 
 function [success, guess] = intQ_Qh(n, x, f, deg, noise, scale, options)    
     
     indices = 1:n;
@@ -37,9 +45,7 @@ function [success, guess] = intQ_Qh(n, x, f, deg, noise, scale, options)
     end
     
     % find quadratic Lyapunov function
-    % disp(A)
     V = sdpvar(n); 
- 
     constraints = [V >= 0, A'*V+V*A <= 0, trace(V) == 1];
     optimize(constraints,[],options);
     
