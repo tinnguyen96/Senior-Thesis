@@ -1,8 +1,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Original contributor: Tin Nguyen. 
 % Description: MATLAB function,
-% - initialize the polynomial component (Q) of the Lyapunov function, 
-% - theoretical basis: 
+% - implement rounds of alternating optimization to find polynomials P and Q, 
+% - theoretical basis: Subsection 2.4.2 of Senior Thesis 
 % Dependencies: 
 % - YALMIP (open-sourced LMI parser that comes with good documentation) 
 % - optimizers: MOSEK or SDPT3, etc. 
@@ -23,7 +23,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function [success, err, final_P, final_Q] = searchLogLya(n, x, f, noise, scale, options dp, dq,...
     P_homogeneous, Q_homogeneous, max_iter, tol) 
-    %% set up 
+    %% YALMIP set up 
     sdpvar t_lo t_hi
       
     linear_constraints = [];
