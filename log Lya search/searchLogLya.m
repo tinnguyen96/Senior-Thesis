@@ -8,7 +8,7 @@
 % - optimizers: MOSEK or SDPT3, etc. 
 % - files in project: intQ_Qh.m 
 % Inputs: 
-% - n, x, f, scale, noise, options: consult intQ_Qh.m 
+% - n, x, f, scale, noise, options: these arguments are the same as those in intQ_Qh.m 
 % - dp: proposed degree of the polynomial P 
 % - dq: proposed degree of the polynomial Q 
 % - P_homogeneous: whether or not P is constrained to be homogeneous 
@@ -18,14 +18,19 @@
 % Outputs: 
 % - success: binary variable indicating success of the search,
 % - err: message indicating error in the event of failure,
-% - final_P: array containing coefficients of the P that appears in the Lyapunov function, 
-% - final_Q: array containing coefficients of the Q that appears in the Lyapunov function.
+% - final_P: array containing coefficients of the P that appears in the final Lyapunov function, 
+% - final_Q: array containing coefficients of the Q that appears in the final Lyapunov function.
+% Room for improvement: 
+% - Errors of the type "Struct contents reference from a non-struct array object" seem to
+% + have more to do with how YALMIP objects are returned rather than numerical issues 
+% + involved in the optimization problems. Resolving such errors would potentially increase the number 
+% + of configuration of arguments that result in a successful search. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [success, err, final_P, final_Q] = searchLogLya(n, x, f, noise, scale, options dp, dq,...
-    P_homogeneous, Q_homogeneous, max_iter, tol) 
-    %% YALMIP set up 
+function [success, err, final_P, final_Q] = searchLogLya(n, x, f, noise, scale, options,...
+                                     dp, dq, P_homogeneous, Q_homogeneous, max_iter, tol) 
+    
+    %% setup YALMIP variables and expressions 
     sdpvar t_lo t_hi
-      
     linear_constraints = [];
     if Q_homogeneous
         vq = monolist(x,dq,dq); 
@@ -68,7 +73,7 @@ function [success, err, final_P, final_Q] = searchLogLya(n, x, f, noise, scale, 
     SOS_constraints = [sos(Q), sos(P), sos(aug_derivative)];
     constraints = SOS_constraints + linear_constraints;
 
-    % Initialize Q using linearization of the system 
+    %% initialize Q using intQ_Qh.m 
     [int_success, curr_cq] = intQ_Qh(n, x, f, dq, noise, scale, options);   
     if (int_success == 0)
         success = 0;
@@ -77,16 +82,19 @@ function [success, err, final_P, final_Q] = searchLogLya(n, x, f, noise, scale, 
         final_P = -1;
         final_Q = -1;
     else
+        success = 1;
+        
+        %% YALMIP allows the definition of family of optimization problems 
+        P_problem = optimizer(constraints,t_lo^2+t_hi^2,options,cq,[cp;t_lo;t_hi]);
+        Q_problem = optimizer(constraints,t_lo^2+t_hi^2,options,cp,[cq;t_lo;t_hi]);
+        
+        %% report the progress of each round of alternating optimization 
         progress = cell(0, 7);
         progress = cell2table(progress);
         progress.Properties.VariableNames = {'iteration', 't_lo_p', 't_hi_p', 'p_prob', ...
             't_lo_q', 't_hi_q', 'q_prob'};
         disp(progress)
-        P_problem = optimizer(constraints,t_lo^2+t_hi^2,options,cq,[cp;t_lo;t_hi]);
-        Q_problem = optimizer(constraints,t_lo^2+t_hi^2,options,cp,[cq;t_lo;t_hi]);
-        
-        %% 
-        success = 1;
+               
         for iter = 1:max_iter
             [Psol,p_problem] = P_problem{curr_cq};
             curr_cp = Psol(1:len_p);
@@ -139,6 +147,7 @@ function [success, err, final_P, final_Q] = searchLogLya(n, x, f, noise, scale, 
             return
         end
         
+        %% clean final solution 
         sanity_tol = 1e-5;    
         P = clean(curr_cp,sanity_tol)'*vp;
         grad_P = jacobian(P,x);
@@ -155,10 +164,7 @@ function [success, err, final_P, final_Q] = searchLogLya(n, x, f, noise, scale, 
             final_Q = -1;
             return 
         end
-        
-        %sdisplay(P)
-        %sdisplay(Q)
-       
+             
         constraints = [sos(P),sos(Q),sos(time_derivative)];
         linear_constraints = [replace(P,x,zeros(n,1)) == 0];
         try
@@ -182,7 +188,7 @@ function [success, err, final_P, final_Q] = searchLogLya(n, x, f, noise, scale, 
                 final_P = P;
                 final_Q = Q;
             else
-                % disp('err: Did not pass the sanity check');
+                disp('err: Did not pass the sanity check');
                 err = 'Did not pass the sanity check';
                 success = 0;
                 final_P = -1;
