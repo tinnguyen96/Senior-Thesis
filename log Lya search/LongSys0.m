@@ -64,8 +64,8 @@ for i_dp = 1:length(dp)
                     for i_scale = 1:length(scale)
                         entry(1,8) = {scale(i_scale)};
                         % disp(entry)
-                        [success, error, P, Q] = searchLogLya(n, x, f, dp(i_dp), dq(i_dq), P_homogeneous(i_P), ...
-                            Q_homogeneous, max_iter, tol(i_tol), noise(i_noise), scale(i_scale), options);
+                        [success, error, P, Q] = searchLogLya(n, x, f,noise(i_noise), scale(i_scale), options,...
+                                                dp(i_dp), dq(i_dq), P_homogeneous(i_P), Q_homogeneous, max_iter, tol(i_tol));
                         entry(1,9) = {success};
                         entry(1,10) = {error};
                         entry(1,11) = {sdisplay(P)};
