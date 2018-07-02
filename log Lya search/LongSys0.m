@@ -1,17 +1,35 @@
-%% Search for logarithmic Lyapunov function using different configurations  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Original contributor: Tin Nguyen. 
+% Description: MATLAB script,
+% - experiment with different configuration of arguments to searchLogLya.m to find Lyapunov function
+% + for the dynamical system in Subsection 2.5.1 of Senior Thesis. 
+% Dependencies: 
+% - YALMIP (open-sourced LMI parser that comes with good documentation) 
+% - optimizers: SDPT3, etc. 
+% - files in project: intQ_Qh.m, searchLogLya.m 
+% Inputs: None. 
+% Outputs: 
+% - writes to the working directory a file named Sys0.txt, each line corresponding to 
+% + a combination of arguments and the results of the Lyapunov search. 
+% Room for improvement: 
+% - the current script relies on SDPT3 solver but some simple changes can be made to utilize
+% + other solvers such as MOSEK (as long as they play nice with YALMIP). 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 clear all
 
-% Make sure YALMIP and SDP solver are visible to MATLAB 
+%% Make sure YALMIP and SDP solver are visible to MATLAB 
 folders = genpath('../YALMIP and SDPT3');
 addpath(folders);
 
+%% setup YALMIP variables and expressions 
 sdpvar x1 x2
 n = 2;
 x = [x1; x2];
 f = [-x1 + x1*x2; -x2]; 
 options = sdpsettings('verbose',0,'solver','sdpt3','sdpt3.maxit',500);
-% options = sdpsettings('verbose',0,'solver','mosek','mosek.maxit',500);
 
+%% try out many different combinations of arguments to searchLogLya.m 
 dp = 2:2:8;
 dq = 2:2:8;
 P_homogeneous = [0;1];
