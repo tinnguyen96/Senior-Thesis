@@ -1,24 +1,32 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Original contributor: Tin Nguyen. 
 % Description: MATLAB function,
-% - solve to optimality dsos problems whose optimal values are instrumental in proving 
-% + inequalities involving kissing number.
+% - solve to optimality dsos problems whose optimal values help prove inequalities
+% + involving kissing number.
 % - theoretical basis: Section 4.2 and Section 4.3 of Senior Thesis. 
 % Dependencies: 
 % - SPOTLESS (open-sourced LMI parser available on GitHub) 
 % - optimizers: MOSEK. 
 % Inputs: 
 % - N: dimension in which to consider the kissing number 
+% - iter: index of current iteration of the pursuit 
+% - max_deq: maximal degree of l_i(w)
+% - mad_dineq: maximal degree of s_{i,j}(w)
+% - max_d0: maximal degree of s_0(w)
+% - sc: magnitude of the noise to be added to the initial value of the Gram matrices. 
+% - method: specifying initialization of the Gram matrices. 1 for identity, 2 for 
+% - tol: clean the polynomial certificates by thresholding coefficients using tol. 
 % Outputs: 
+% - gama: optimal value of problem defined in the iteration of the pursuit
+% - status: report success / failure
 % Room for improvement: 
-% - Errors of the type "Struct contents reference from a non-struct array object" seem to
-% + have more to do with how YALMIP objects are returned rather than numerical issues 
-% + involved in the optimization problems. Resolving such errors would potentially increase the number 
-% + of configuration of arguments that result in a successful search. 
+% - each call of this function handles only one iteration of the pursuit. Ideally,
+% + each function call will run the iterations sequentially until a maximal number of 
+% + rounds have been reached, but during the experiments, issues with memory allocation 
+% + appeared that prohibited the cleaner version of the code. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-function [gama_list, status_list, num_vars, nineq, n0] = dsos_putinar(N,...
-    iter, max_deq, max_dineq, max_d0, sc, method, tol)
+function [gama, status] = dsos_putinar(N, iter, max_deq, max_dineq, max_d0, sc, ...
+                                        method, tol)
 
     folders = genpath('./spotless-spotless_isos'); % load spotless
     addpath(folders);
@@ -50,12 +58,10 @@ function [gama_list, status_list, num_vars, nineq, n0] = dsos_putinar(N,...
     min_max_Q_eig_list = cell(1, N, N);
     num_vars = zeros(1, 1); 
     num_constrs = zeros(1, 1); 
-
-    % Initialize first iteration 
     nineq = length(monomials([z(:,1);z(:,2);y],m_dineq));
     n0 = length(monomials([x;y],m_d0)); 
 
-    % Initialize if meant to be first iteration 
+    % If first iteration, initialize 
     if (iter == 1)
         % One initialization method: everything is identity matrix 
         if method == 1
@@ -85,7 +91,8 @@ function [gama_list, status_list, num_vars, nineq, n0] = dsos_putinar(N,...
             end
             U0 = eye(n0) - sc*diag(randn(n0,1));
         end
-    % load U0 and Unieq of previous iteration 
+        
+    % if not first iteration, load U0 and Unieq of previous iteration 
     else
         file_name = strcat(dir_name,'/iter=',num2str(iter-1),'.mat') ;
         load(file_name)
@@ -170,7 +177,6 @@ function [gama_list, status_list, num_vars, nineq, n0] = dsos_putinar(N,...
     min_max_Q0_eig = {min(diag(D)), max(diag(D))};
 
     % change the basis only if eigenvalues are larger than threshold value 
-    % not the reason the seg fault is happening 
     if 0
         new_U0 = U0;
         if max(diag(D)) >= tol
@@ -225,8 +231,6 @@ function [gama_list, status_list, num_vars, nineq, n0] = dsos_putinar(N,...
     disp(min_max_Q0_eig);
     disp('Distance between new and old Uineq basis matrices');
     disp(change_Uineq);
-    % disp('Minimum and maximum eigenvalue of Q{i,j} i.e. gram matrix');
-    % disp(min_max_Q_eig_list{iter,:,:});
 
     % save U0 and Uineq for next iteration 
     file_name = strcat(dir_name,'/iter=',num2str(iter));
