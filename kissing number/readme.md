@@ -1,1 +1,1 @@
-Files in this subfolder implement the ideas of Chapter 4 of Senior Thesis. 
+Files in this subfolder implement the ideas of Chapter 4 of Senior Thesis. dsos_putinar.m is MATLAB function desgined to define and solve relevant dsos problems that are formulated during the proof of kissing number probloems. dsos_putinar_submit.txt is a shell example of how dsos_putinar.m should called many times in sequence to perform the pursuit. 
