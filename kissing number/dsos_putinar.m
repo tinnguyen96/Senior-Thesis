@@ -1,18 +1,29 @@
-% Code to demonstrate N = 13 is infeasible for 3d kissing problem. 
-% Utilize Putinar's p-satz to find lower bound ... 
-% Written in SPOTLESS.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Original contributor: Tin Nguyen. 
+% Description: MATLAB function,
+% - solve to optimality dsos problems whose optimal values are instrumental in proving 
+% + inequalities involving kissing number.
+% - theoretical basis: Section 4.2 and Section 4.3 of Senior Thesis. 
+% Dependencies: 
+% - SPOTLESS (open-sourced LMI parser available on GitHub) 
+% - optimizers: MOSEK. 
+% Inputs: 
+% - N: dimension in which to consider the kissing number 
+% Outputs: 
+% Room for improvement: 
+% - Errors of the type "Struct contents reference from a non-struct array object" seem to
+% + have more to do with how YALMIP objects are returned rather than numerical issues 
+% + involved in the optimization problems. Resolving such errors would potentially increase the number 
+% + of configuration of arguments that result in a successful search. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [gama_list, status_list, num_vars, nineq, n0] = dsos_putinar(N, on_PC,...
+function [gama_list, status_list, num_vars, nineq, n0] = dsos_putinar(N,...
     iter, max_deq, max_dineq, max_d0, sc, method, tol)
 
     folders = genpath('./spotless-spotless_isos'); % load spotless
     addpath(folders);
 
-    if (on_PC)
-        addpath 'C:\Users\mosek\8\toolbox\r2014aom' % load mosek  
-    else
-        addpath '/home/tdn/kissing/mosek_for_linux/8/toolbox/r2014aom' % load mosek  
-    end
+    addpath '/home/tdn/kissing/mosek_for_linux/8/toolbox/r2014aom' % load mosek  
 
     x = msspoly('x',3*N); % Array form
     z = reshape(x,[3 N]); % Matrix form 
