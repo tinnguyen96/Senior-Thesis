@@ -1,1 +1,1 @@
-This is the description file for the kissing number subfolder. 
+Files in this subfolder implement the ideas of Chapter 4 of Senior Thesis. 
